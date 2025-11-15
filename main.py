@@ -1,23 +1,22 @@
 
 import tornado.web
 import asyncio
-
 from bson import ObjectId
 from pymongo import AsyncMongoClient
 
 client = AsyncMongoClient("localhost", 27017)
-db = client['publisher_db']
+db = client['publishing_db']
 publishers=db['publishers']
 books= db['books']
 
-class Main(tornado.web.RequestHandler):
+class PublishersHandler(tornado.web.RequestHandler):
     async def get(self, id=None):
         name = self.get_query_argument("name", None)
         country=self.get_query_argument("country", None)
 
 
         if id:
-            filtered_publisher = await publishers.find({"_id": id })
+            filtered_publisher = await publishers.find({"_id": ObjectId(id) })
         else:
             if name and country:
                 filtered_publisher= await publishers.find({"$and": [{"name": name},{"country": country}]})
@@ -27,14 +26,17 @@ class Main(tornado.web.RequestHandler):
                 filtered_publisher = await publishers.find({"country": country})
             else:
                 filtered_publisher= await publishers.find()
-
+        self.write(filtered_publisher)
 
     def post(self):
         pass
 
 
 def make_app():
-       return tornado.web.Application([])
+       return tornado.web.Application([
+           (r"/publisher", PublishersHandler),
+           (r"/publisher/(^[a-f0-9]{32}$)", PublishersHandler)
+       ])
 
 async def main(shutdown_event):
     app = make_app()
