@@ -3,6 +3,11 @@ import tornado.web
 import asyncio
 from pymongo import AsyncMongoClient
 
+client = AsyncMongoClient("localhost", 27017)
+db = client['publisher_db']
+publishers=db['publishers']
+books= db['books']
+
 class Main(tornado.web.RequestHandler):
     def post(self):
         pass
