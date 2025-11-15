@@ -17,6 +17,7 @@ class PublishersHandler(tornado.web.RequestHandler):
 
         if id:
             filtered_publisher = await publishers.find_one({"_id": ObjectId(id) })
+            filtered_publisher["_id"]= str(filtered_publisher["_id"])
             self.write(filtered_publisher)
         else:
             if name and country:
@@ -58,10 +59,10 @@ class PublishersHandler(tornado.web.RequestHandler):
 
 
 def make_app():
-       return tornado.web.Application([
-           (r"/publishers", PublishersHandler),
-           (r"/publishers/(^[a-f0-9]{32}$)", PublishersHandler)
-       ])
+    return tornado.web.Application([
+        (r"/publishers", PublishersHandler),  # Per la lista di publisher
+        (r"/publishers/([a-f0-9]{24})", PublishersHandler),  # Per il publisher con un ID esadecimale
+    ])
 
 async def main(shutdown_event):
     app = make_app()
