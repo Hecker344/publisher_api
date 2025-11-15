@@ -11,6 +11,7 @@ books= db['books']
 
 class PublishersHandler(tornado.web.RequestHandler):
     async def get(self, id=None):
+        self.set_header("Content-Type", "application/json")
         name = self.get_query_argument("name", None)
         country=self.get_query_argument("country", None)
 
@@ -54,8 +55,10 @@ class PublishersHandler(tornado.web.RequestHandler):
                 self.write(filtered_publisher)
 
 
-    def post(self):
-        pass
+    async def post(self):
+        self.set_header("Content-Type", "application/json")
+        data = tornado.escape.json_decode(self.request.body)
+        ris = await publishers.insert_one(data)
 
 
 def make_app():
