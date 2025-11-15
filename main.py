@@ -16,17 +16,42 @@ class PublishersHandler(tornado.web.RequestHandler):
 
 
         if id:
-            filtered_publisher = await publishers.find({"_id": ObjectId(id) })
+            filtered_publisher = await publishers.find_one({"_id": ObjectId(id) })
+            self.write(filtered_publisher)
         else:
             if name and country:
-                filtered_publisher= await publishers.find({"$and": [{"name": name},{"country": country}]})
+                all_publishers= publishers.find({"$and": [{"name": name},{"country": country}]})
+                list = []
+                async for publisher in all_publishers:
+                    publisher["_id"] = str(publisher["_id"])
+                    list.append(publisher)
+                filtered_publisher = {"publishers":list}
+                self.write(filtered_publisher)
             elif name:
-                filtered_publisher = await publishers.find({"name": name})
+                all_publishers = publishers.find({"name": name})
+                list = []
+                async for publisher in all_publishers:
+                    publisher["_id"] = str(publisher["_id"])
+                    list.append(publisher)
+                filtered_publisher = {"publishers":list}
+                self.write(filtered_publisher)
             elif country:
-                filtered_publisher = await publishers.find({"country": country})
+                all_publishers = publishers.find({"country": country})
+                list = []
+                async for publisher in all_publishers:
+                    publisher["_id"] = str(publisher["_id"])
+                    list.append(publisher)
+                filtered_publisher = {"publishers":list}
+                self.write(filtered_publisher)
             else:
-                filtered_publisher= await publishers.find()
-        self.write(filtered_publisher)
+                all_publishers= publishers.find()
+                list = []
+                async for publisher in all_publishers:
+                    publisher["_id"] = str(publisher["_id"])
+                    list.append(publisher)
+                filtered_publisher = {"publishers":list}
+                self.write(filtered_publisher)
+
 
     def post(self):
         pass
@@ -34,8 +59,8 @@ class PublishersHandler(tornado.web.RequestHandler):
 
 def make_app():
        return tornado.web.Application([
-           (r"/publisher", PublishersHandler),
-           (r"/publisher/(^[a-f0-9]{32}$)", PublishersHandler)
+           (r"/publishers", PublishersHandler),
+           (r"/publishers/(^[a-f0-9]{32}$)", PublishersHandler)
        ])
 
 async def main(shutdown_event):
