@@ -58,6 +58,7 @@ class PublishersHandler(tornado.web.RequestHandler):
         self.set_header("Content-Type", "application/json")
         data = tornado.escape.json_decode(self.request.body)
         ris = await publishers.insert_one(data)
+        self.write(ris)
 
 
 def make_app():
@@ -69,7 +70,7 @@ def make_app():
 async def main(shutdown_event):
     app = make_app()
     app.listen(8888)
-    print("Server attivo su http://localhost:8888/main")
+    print("Server attivo su http://localhost:8888/publishers")
     await shutdown_event.wait()
     print("Chiusura server...")
 
