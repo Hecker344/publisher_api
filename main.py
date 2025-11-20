@@ -60,11 +60,29 @@ class PublishersHandler(tornado.web.RequestHandler):
         ris = await publishers.insert_one(data)
         self.write(str(ris))
 
+class BooksHandler(tornado.web.RequestHandler):
+    async def get(self, id=None):
+        self.set_header("Content-Type", "application/json")
+
+
+        if id:
+            filtered_book = await books.find_one({"publisher_id": ObjectId(id) })
+            filtered_book["publisher_id"]= str(filtered_book["publisher_id"])
+            filtered_book["_id"] = str(filtered_book["_id"])
+            self.write(filtered_book)
+        else:
+            pass
+
+
+    async def post(self):
+        pass
+
 
 def make_app():
     return tornado.web.Application([
         (r"/publishers", PublishersHandler),  # Per la lista di publisher
         (r"/publishers/([a-f0-9]{24})", PublishersHandler),  # Per il publisher con un ID esadecimale
+
     ])
 
 async def main(shutdown_event):
