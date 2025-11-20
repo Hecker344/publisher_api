@@ -54,11 +54,14 @@ class PublishersHandler(tornado.web.RequestHandler):
                 self.write(filtered_publisher)
 
 
-    async def post(self):
+    async def post(self, id= None):
         self.set_header("Content-Type", "application/json")
-        data = tornado.escape.json_decode(self.request.body)
-        ris = await publishers.insert_one(data)
-        self.write(str(ris))
+        if id:
+            self.write("metodo non accetato con id")
+        else:
+            data = tornado.escape.json_decode(self.request.body)
+            ris = await publishers.insert_one(data)
+            self.write(str(ris))
 
 class BooksHandler(tornado.web.RequestHandler):
     async def get(self, id=None):
