@@ -58,7 +58,7 @@ class PublishersHandler(tornado.web.RequestHandler):
         self.set_header("Content-Type", "application/json")
         data = tornado.escape.json_decode(self.request.body)
         ris = await publishers.insert_one(data)
-        self.write(ris)
+        self.write(str(ris))
 
 
 def make_app():
