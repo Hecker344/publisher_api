@@ -66,10 +66,14 @@ class BooksHandler(tornado.web.RequestHandler):
 
 
         if id:
-            filtered_book = await books.find_one({"publisher_id": ObjectId(id) })
-            filtered_book["publisher_id"]= str(filtered_book["publisher_id"])
-            filtered_book["_id"] = str(filtered_book["_id"])
-            self.write(filtered_book)
+            all_books = books.find({"publisher_id": ObjectId(id)})
+            list = []
+            async for book in all_books:
+                book["_id"] = str(book["_id"])
+                book["publisher_id"]= str(book["publisher_id"])
+                list.append(book)
+            filtered_publisher = {"books": list}
+            self.write(filtered_publisher)
         else:
             pass
 
@@ -82,7 +86,7 @@ def make_app():
     return tornado.web.Application([
         (r"/publishers", PublishersHandler),  # Per la lista di publisher
         (r"/publishers/([a-f0-9]{24})", PublishersHandler),  # Per il publisher con un ID esadecimale
-
+        (r"/publishers/([a-f0-9]{24})/books", BooksHandler)
     ])
 
 async def main(shutdown_event):
