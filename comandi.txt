@@ -1,0 +1,7 @@
+docker start mongodb
+
+docker exec -it mongodb mongosh
+
+use publishing_db
+
+E POI ESEGUIRE DATABASE.PY
