@@ -222,6 +222,63 @@ class BooksHandler(tornado.web.RequestHandler):
             except:
                 self.write("body della post non valido")
 
+    async def delete(self, id=None):
+        self.set_header("Content-Type", "application/json")
+        if id:
+            res = await books.delete_one({"_id": ObjectId(id)})
+            self.write(str(res.deleted_count))
+        else:
+            self.write("é obbligatorio un id")
+
+    async def put(self, id=None):
+        self.set_header("Content-Type", "application/json")
+        data = tornado.escape.json_decode(self.request.body)
+        k = 0
+        if id:
+            filtered_book = await books.find_one({"_id": ObjectId(id)})
+            if filtered_book:
+                if data["titolo"]:
+                    await books.update_one(
+                        {"_id": ObjectId(id)},
+                        {"$set": {"titolo": data["titolo"]}}
+                    )
+                    k = k + 1
+                    self.write("titolo modificato")
+                if data["author"]:
+                    await books.update_one(
+                        {"_id": ObjectId(id)},
+                        {"$set": {"author": data["author"]}}
+                    )
+                    k = k + 1
+                    self.write("author modificato")
+                if data["genre"]:
+                    await books.update_one(
+                        {"_id": ObjectId(id)},
+                        {"$set": {"genre": data["genre"]}}
+                    )
+                    k = k + 1
+                    self.write("genre modificato")
+                if data["year"]:
+                    await books.update_one(
+                        {"_id": ObjectId(id)},
+                        {"$set": {"year": data["year"]}}
+                    )
+                    k = k + 1
+                    self.write("year modificato")
+                if data["publisher_id"]:
+                    await books.update_one(
+                        {"_id": ObjectId(id)},
+                        {"$set": {"publisher_id": data["publisher_id"]}}
+                    )
+                    k = k + 1
+                    self.write("publisher_id modificato")
+                if k == 0:
+                    self.write("Argomenti della post non validi")
+            else:
+                self.write("id errato")
+        else:
+            self.write("id mancante")
+
 
 def make_app():
     return tornado.web.Application([
