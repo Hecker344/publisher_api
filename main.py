@@ -63,6 +63,15 @@ class PublishersHandler(tornado.web.RequestHandler):
             ris = await publishers.insert_one(data)
             self.write(str(ris))
 
+    async def delete(self, id= None):
+        self.set_header("Content-Type", "application/json")
+        if id:
+            res= await publishers.delete_one({"_id": ObjectId(id)})
+            self.write(res.deleted_count)
+        else:
+            self.write("é obbligatorio un id")
+
+
 class BooksHandler(tornado.web.RequestHandler):
     async def get(self, id=None):
         self.set_header("Content-Type", "application/json")
