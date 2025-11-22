@@ -61,12 +61,11 @@ class PublishersHandler(tornado.web.RequestHandler):
         else:
             data = tornado.escape.json_decode(self.request.body)
             try:
-                new_book={  "title": data["title"],
-                            "author": data["author"],
-                            "genre": data["genre"],
-                            "year": data["year"],
-                            "publisher_id": ObjectId(data["publisher_id"])}
-                ris = await publishers.insert_one(new_book)
+                new_publisher={  "name": data["name"],
+                            "founded_year": data["founded_year"],
+                            "country": data["country"]
+                                 }
+                ris = await publishers.insert_one(new_publisher)
                 self.write(str(ris))
             except:
                 self.write("body della post non valido")
@@ -76,7 +75,7 @@ class PublishersHandler(tornado.web.RequestHandler):
         self.set_header("Content-Type", "application/json")
         if id:
             res= await publishers.delete_one({"_id": ObjectId(id)})
-            self.write(res.deleted_count)
+            self.write(str(res.deleted_count))
         else:
             self.write("é obbligatorio un id")
 
@@ -110,6 +109,11 @@ class PublishersHandler(tornado.web.RequestHandler):
                     self.write("country modificato")
                 if k==0:
                     self.write("Argomenti della post non validi")
+            else:
+                self.write("id errato")
+        else:
+            self.write("id mancante")
+
 
 
 class BooksHandler(tornado.web.RequestHandler):
@@ -197,7 +201,21 @@ class BooksHandler(tornado.web.RequestHandler):
 
 
     async def post(self):
-        pass
+        self.set_header("Content-Type", "application/json")
+        if id:
+            self.write("metodo non accetato con id")
+        else:
+            data = tornado.escape.json_decode(self.request.body)
+            try:
+                new_book = {"title": data["title"],
+                            "author": data["author"],
+                            "genre": data["genre"],
+                            "year": data["year"],
+                            "publisher_id": ObjectId(data["publisher_id"])}
+                ris = await books.insert_one(new_book)
+                self.write(str(ris))
+            except:
+                self.write("body della post non valido")
 
 
 def make_app():
