@@ -71,6 +71,37 @@ class PublishersHandler(tornado.web.RequestHandler):
         else:
             self.write("é obbligatorio un id")
 
+    async def put(self, id= None):
+        self.set_header("Content-Type", "application/json")
+        data = tornado.escape.json_decode(self.request.body)
+        k=0
+        if id:
+            filtered_publisher = await publishers.find_one({"_id": ObjectId(id)})
+            if filtered_publisher:
+                if data["name"]:
+                    await publishers.update_one(
+                    {"_id": ObjectId(id)},
+                    {"$set": {"name": data["name"]}}
+                    )
+                    k=k+1
+                    self.write("Name modificato")
+                if data["founded_year"]:
+                    await publishers.update_one(
+                        {"_id": ObjectId(id)},
+                        {"$set": {"founded_year": data["founded_year"]}}
+                    )
+                    k=k+1
+                    self.write("founded_year modificato")
+                if data["country"]:
+                    await publishers.update_one(
+                        {"_id": ObjectId(id)},
+                        {"$set": {"country": data["country"]}}
+                    )
+                    k=k+1
+                    self.write("country modificato")
+                if k==0:
+                    self.write("Argomenti della post non validi")
+
 
 class BooksHandler(tornado.web.RequestHandler):
     async def get(self, id=None, id_book=None):
