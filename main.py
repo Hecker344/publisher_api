@@ -73,21 +73,87 @@ class PublishersHandler(tornado.web.RequestHandler):
 
 
 class BooksHandler(tornado.web.RequestHandler):
-    async def get(self, id=None):
+    async def get(self, id=None, id_book=None):
         self.set_header("Content-Type", "application/json")
-
-
-        if id:
-            all_books = books.find({"publisher_id": ObjectId(id)})
+        title = self.get_query_argument("title", None)
+        author = self.get_query_argument("author", None)
+        genre = self.get_query_argument("genre", None)
+        if id_book and id:
+            all_books = books.find({"$and": [{"_id": ObjectId(id_book)}, {"publisher_id": ObjectId(id)}]})
             list = []
             async for book in all_books:
                 book["_id"] = str(book["_id"])
-                book["publisher_id"]= str(book["publisher_id"])
+                book["publisher_id"] = str(book["publisher_id"])
                 list.append(book)
-            filtered_publisher = {"books": list}
-            self.write(filtered_publisher)
+            filtered_book = {"books": list}
+            self.write(filtered_book)
+        elif id:
+                all_books = books.find({"publisher_id": ObjectId(id)})
+                list = []
+                async for book in all_books:
+                    book["_id"] = str(book["_id"])
+                    book["publisher_id"]= str(book["publisher_id"])
+                    list.append(book)
+                filtered_book = {"books": list}
+                self.write(filtered_book)
+                if title and author and genre:
+                        all_books = books.find({"$and": [{"title": title}, {"author": author},{"genre":genre}]})
+                        list = []
+                        async for book in all_books:
+                            book["_id"] = str(book["_id"])
+                            list.append(book)
+                        filtered_book = {"books": list}
+                        self.write(filtered_book)
+                elif title and author:
+                    all_books = books.find({"$and": [{"title": title}, {"author": author}]})
+                    list = []
+                    async for book in all_books:
+                        book["_id"] = str(book["_id"])
+                        list.append(book)
+                    filtered_book = {"books": list}
+                    self.write(filtered_book)
+                elif title and genre:
+                    all_books = books.find({"$and": [{"title": title}, {"genre": genre}]})
+                    list = []
+                    async for book in all_books:
+                        book["_id"] = str(book["_id"])
+                        list.append(book)
+                    filtered_book = {"books": list}
+                    self.write(filtered_book)
+                elif genre and author:
+                    all_books = books.find({"$and": [{"author": author}, {"genre": genre}]})
+                    list = []
+                    async for book in all_books:
+                        book["_id"] = str(book["_id"])
+                        list.append(book)
+                    filtered_book = {"books": list}
+                    self.write(filtered_book)
+                elif title:
+                    all_books = books.find({"title": title})
+                    list = []
+                    async for book in all_books:
+                        book["_id"] = str(book["_id"])
+                        list.append(book)
+                    filtered_book = {"books": list}
+                    self.write(filtered_book)
+                elif author:
+                    all_books = books.find({"author": author})
+                    list = []
+                    async for book in all_books:
+                        book["_id"] = str(book["_id"])
+                        list.append(book)
+                    filtered_book = {"books": list}
+                    self.write(filtered_book)
+                elif genre:
+                    all_books = books.find({"genre": genre})
+                    list = []
+                    async for book in all_books:
+                        book["_id"] = str(book["_id"])
+                        list.append(book)
+                    filtered_book = {"books": list}
+                    self.write(filtered_book)
         else:
-            pass
+            self.write("id mancanti o errati")
 
 
     async def post(self):
@@ -98,7 +164,8 @@ def make_app():
     return tornado.web.Application([
         (r"/publishers", PublishersHandler),  # Per la lista di publisher
         (r"/publishers/([a-f0-9]{24})", PublishersHandler),  # Per il publisher con un ID esadecimale
-        (r"/publishers/([a-f0-9]{24})/books", BooksHandler)
+        (r"/publishers/([a-f0-9]{24})/books", BooksHandler),
+        (r"/publishers/([a-f0-9]{24})/books/([a-f0-9]{24})", BooksHandler)
     ])
 
 async def main(shutdown_event):
