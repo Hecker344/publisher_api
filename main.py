@@ -60,8 +60,17 @@ class PublishersHandler(tornado.web.RequestHandler):
             self.write("metodo non accetato con id")
         else:
             data = tornado.escape.json_decode(self.request.body)
-            ris = await publishers.insert_one(data)
-            self.write(str(ris))
+            try:
+                new_book={  "title": data["title"],
+                            "author": data["author"],
+                            "genre": data["genre"],
+                            "year": data["year"],
+                            "publisher_id": ObjectId(data["publisher_id"])}
+                ris = await publishers.insert_one(new_book)
+                self.write(str(ris))
+            except:
+                self.write("body della post non valido")
+
 
     async def delete(self, id= None):
         self.set_header("Content-Type", "application/json")
